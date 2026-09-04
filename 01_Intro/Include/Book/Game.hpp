@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 
-class Game : private sf::NonCopyable
+class Game 
 {
 	public:
 								Game();
@@ -24,12 +24,17 @@ class Game : private sf::NonCopyable
 		static const float		PlayerSpeed;
 		static const sf::Time	TimePerFrame;
 
-		sf::RenderWindow		mWindow;
-		sf::Texture				mTexture;
-		sf::Sprite				mPlayer;
-		sf::Font				mFont;
-		sf::Text				mStatisticsText;
-		sf::Time				mStatisticsUpdateTime;
+		// 1. 先声明基础资源
+		sf::Texture mTexture;
+		sf::Font mFont;
+
+		// 2. 再声明依赖资源的对象
+		sf::Sprite mPlayer;         // 依赖 mTexture
+		sf::Text mStatisticsText;   // 依赖 mFont
+
+		// 其他成员
+		sf::RenderWindow mWindow;
+		sf::Time mStatisticsUpdateTime;
 
 		std::size_t				mStatisticsNumFrames;
 		bool					mIsMovingUp;

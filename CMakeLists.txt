@@ -1,5 +1,6 @@
 
-cmake_minimum_required(VERSION 2.8)
+# SFML 3.1.0 (fetched below) requires CMake >= 3.28
+cmake_minimum_required(VERSION 3.28)
 
 # Specify default build type if none provided (before project() command)
 if(NOT CMAKE_BUILD_TYPE)
@@ -23,36 +24,39 @@ if (SFML_STATIC_LIBRARIES)
 	add_definitions(-DSFML_STATIC)
 endif()
 
-# Specific compiler options - set C++11 flag for g++ and clang
+# Specific compiler options - set C++17 flag
 if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 	
 	# Mac OS X: clang uses libc++ standard library
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	endif()
+elseif(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 endif()
 
 #####################################################################################################################################
 
 
-# Add directory containing FindSFML.cmake to module path
-set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/;${CMAKE_MODULE_PATH}")
+# Fetch SFML 3.1.0 from source (no absolute install path needed)
+include(FetchContent)
 
-# Find SFML
-# Note: SFML_STATIC_LIBRARIES determines which libraries are found by find_package()
-find_package(SFML 2 COMPONENTS audio graphics window system network)
-
-# If found, include and link; otherwise output error message
-if(SFML_FOUND)
-	include_directories(${SFML_INCLUDE_DIR})
-else()
-	set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
-	message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).")
-	message("-> Make sure the SFML libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
+# Build SFML as shared libraries by default; honor the static option
+set(BUILD_SHARED_LIBS OFF)
+if(NOT SFML_STATIC_LIBRARIES)
+	set(BUILD_SHARED_LIBS ON)
 endif()
+
+FetchContent_Declare(sfml
+	GIT_REPOSITORY https://github.com/SFML/SFML.git
+	GIT_TAG 3.1.0
+	GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(sfml)
 
 ######################################################################################################################################
 
@@ -111,11 +115,34 @@ macro(build_chapter CHAPTER_NAME)
 		set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS "SFML_STATIC")
 	endif()
 
-	# Link SFML. For versions < 2.2, SFML_DEPENDENCIES is not defined, and we do not need to link dependencies
-	if(SFML_VERSION_MINOR LESS 2)
-        set(SFML_DEPENDENCIES "")
+	# Link SFML 3 (official CMake targets from FetchContent)
+	target_link_libraries(${PROJECT_NAME} PRIVATE
+		SFML::Audio
+		SFML::Graphics
+		SFML::Network
+		SFML::System
+		SFML::Window)
+
+	# Copy SFML runtime DLLs next to the executable (Windows, shared build).
+	# Paths come from the built SFML targets themselves, no hard-coded path needed.
+	if(NOT SFML_STATIC_LIBRARIES AND WIN32)
+		foreach(MODULE Audio Graphics Network System Window)
+			if(TARGET SFML::${MODULE})
+				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different
+						"$<TARGET_FILE:SFML::${MODULE}>"
+						"$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+			endif()
+		endforeach()
 	endif()
-	target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
+
+	# Copy the chapter's Media folder next to the executable at build time.
+	# The code loads resources via relative paths like Media/Textures/Eagle.png,
+	# so the Media directory must exist in the executable's output directory.
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+			"${CHAPTER_DIR}/Media"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/Media")
 
 	install(TARGETS ${PROJECT_NAME}	RUNTIME DESTINATION ${CHAPTER_NAME})
 

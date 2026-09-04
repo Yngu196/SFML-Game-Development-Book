@@ -89,9 +89,19 @@ if(SFML_FIND_VERSION AND SFML_INCLUDE_DIR)
         set(SFML_CONFIG_HPP_INPUT "${SFML_INCLUDE_DIR}/SFML/Config.hpp")
     endif()
     FILE(READ "${SFML_CONFIG_HPP_INPUT}" SFML_CONFIG_HPP_CONTENTS)
-    STRING(REGEX REPLACE ".*#define SFML_VERSION_MAJOR ([0-9]+).*" "\\1" SFML_VERSION_MAJOR "${SFML_CONFIG_HPP_CONTENTS}")
-    STRING(REGEX REPLACE ".*#define SFML_VERSION_MINOR ([0-9]+).*" "\\1" SFML_VERSION_MINOR "${SFML_CONFIG_HPP_CONTENTS}")
-    STRING(REGEX REPLACE ".*#define SFML_VERSION_PATCH ([0-9]+).*" "\\1" SFML_VERSION_PATCH "${SFML_CONFIG_HPP_CONTENTS}")
+    # Extract version numbers. NOTE: CMake regex '.' does NOT match newlines,
+    # so a leading '.*' cannot span the comment block above these defines
+    # (SFML 3.x Config.hpp has a long header comment; SFML 2.x did not).
+    # Match the '#define SFML_VERSION_xxx n' line directly instead.
+    if(SFML_CONFIG_HPP_CONTENTS MATCHES "#define SFML_VERSION_MAJOR[ \t]+([0-9]+)")
+        set(SFML_VERSION_MAJOR "${CMAKE_MATCH_1}")
+    endif()
+    if(SFML_CONFIG_HPP_CONTENTS MATCHES "#define SFML_VERSION_MINOR[ \t]+([0-9]+)")
+        set(SFML_VERSION_MINOR "${CMAKE_MATCH_1}")
+    endif()
+    if(SFML_CONFIG_HPP_CONTENTS MATCHES "#define SFML_VERSION_PATCH[ \t]+([0-9]+)")
+        set(SFML_VERSION_PATCH "${CMAKE_MATCH_1}")
+    endif()
     if (NOT "${SFML_VERSION_PATCH}" MATCHES "^[0-9]+$")
         set(SFML_VERSION_PATCH 0)
     endif()

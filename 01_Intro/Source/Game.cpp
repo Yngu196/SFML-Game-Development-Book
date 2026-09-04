@@ -6,11 +6,11 @@ const float Game::PlayerSpeed = 100.f;
 const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
 
 Game::Game()
-: mWindow(sf::VideoMode(640, 480), "SFML Application", sf::Style::Close)
+	: mWindow(sf::VideoMode({ 640, 480 }), "SFML Application", sf::Style::Close)
 , mTexture()
-, mPlayer()
+, mPlayer(mTexture)
 , mFont()
-, mStatisticsText()
+, mStatisticsText(mFont, "", 30)
 , mStatisticsUpdateTime()
 , mStatisticsNumFrames(0)
 , mIsMovingUp(false)
@@ -22,13 +22,16 @@ Game::Game()
 	{
 		// Handle loading error
 	}
+	// SFML 3：Sprite 在纹理加载前构造，贴图矩形保持空，需在加载成功后显式重置
+	mPlayer.setTexture(mTexture, true); // resetTextureRect = true，重置为整张纹理
+	mPlayer.setPosition(sf::Vector2f(100.f, 100.f));
 
-	mPlayer.setTexture(mTexture);
-	mPlayer.setPosition(100.f, 100.f);
-	
-	mFont.loadFromFile("Media/Sansation.ttf");
-	mStatisticsText.setFont(mFont);
-	mStatisticsText.setPosition(5.f, 5.f);
+	if (!mFont.openFromFile("Media/Sansation.ttf"))
+	{
+		// Handle font loading error
+	}
+	// mStatisticsText 已经绑定了 mFont，设置其他属性
+	mStatisticsText.setPosition(sf::Vector2f(5.f, 5.f));
 	mStatisticsText.setCharacterSize(10);
 }
 
@@ -55,22 +58,19 @@ void Game::run()
 
 void Game::processEvents()
 {
-	sf::Event event;
-	while (mWindow.pollEvent(event))
+	while (const std::optional event = mWindow.pollEvent())
 	{
-		switch (event.type)
+		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
-			case sf::Event::KeyPressed:
-				handlePlayerInput(event.key.code, true);
-				break;
-
-			case sf::Event::KeyReleased:
-				handlePlayerInput(event.key.code, false);
-				break;
-
-			case sf::Event::Closed:
-				mWindow.close();
-				break;
+			handlePlayerInput(keyPressed->code, true);
+		}
+		else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+		{
+			handlePlayerInput(keyReleased->code, false);
+		}
+		else if (event->is<sf::Event::Closed>())
+		{
+			mWindow.close();
 		}
 	}
 }
@@ -116,12 +116,12 @@ void Game::updateStatistics(sf::Time elapsedTime)
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed)
 {	
-	if (key == sf::Keyboard::W)
+	if (key == sf::Keyboard::Key::W)
 		mIsMovingUp = isPressed;
-	else if (key == sf::Keyboard::S)
+	else if (key == sf::Keyboard::Key::S)
 		mIsMovingDown = isPressed;
-	else if (key == sf::Keyboard::A)
+	else if (key == sf::Keyboard::Key::A)
 		mIsMovingLeft = isPressed;
-	else if (key == sf::Keyboard::D)
+	else if (key == sf::Keyboard::Key::D)
 		mIsMovingRight = isPressed;
 }
