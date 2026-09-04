@@ -2,21 +2,27 @@
 #include <Book/StringHelpers.hpp>
 
 #include <SFML/Window/Event.hpp>
+#include <iostream>
 
 
 const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
 
 Game::Game()
-: mWindow(sf::VideoMode(640, 480), "World", sf::Style::Close)
+: mWindow(sf::VideoMode({640, 480}), "World", sf::Style::Close)
 , mWorld(mWindow)
 , mFont()
-, mStatisticsText()
+, mStatisticsText(mFont, "", 30)
 , mStatisticsUpdateTime()
 , mStatisticsNumFrames(0)
 {
-	mFont.loadFromFile("Media/Sansation.ttf");
+	if (!mFont.openFromFile("Media/Sansation.ttf")){
+		// 字体加载失败的处理逻辑
+		std::cerr << "Failed to load font: Media/Sansation.ttf" << std::endl;
+		// 可选：直接关闭窗口退出程序
+		// mWindow.close(); 
+	}
 	mStatisticsText.setFont(mFont);
-	mStatisticsText.setPosition(5.f, 5.f);
+	mStatisticsText.setPosition(sf::Vector2f(5.f, 5.f));
 	mStatisticsText.setCharacterSize(10);
 }
 
@@ -44,22 +50,19 @@ void Game::run()
 
 void Game::processEvents()
 {
-	sf::Event event;
-	while (mWindow.pollEvent(event))
+	while (const auto event = mWindow.pollEvent())
 	{
-		switch (event.type)
-		{
-			case sf::Event::KeyPressed:
-				handlePlayerInput(event.key.code, true);
-				break;
-
-			case sf::Event::KeyReleased:
-				handlePlayerInput(event.key.code, false);
-				break;
-
-			case sf::Event::Closed:
-				mWindow.close();
-				break;
+		// 判断窗口关闭（无额外数据，用 is 更简洁）
+		if (event->is<sf::Event::Closed>()) {
+			mWindow.close();
+		}
+		// 判断按键按下（有数据，用 getIf 提取）
+		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+			handlePlayerInput(keyPressed->code, true);
+		}
+		// 判断按键释放
+		else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
+			handlePlayerInput(keyReleased->code, false);
 		}
 	}
 }

@@ -1,3 +1,4 @@
+#include <SFML/Graphics/RenderStates.hpp>
 #include <Book/SceneNode.hpp>
 #include <Book/Foreach.hpp>
 
