@@ -2,6 +2,9 @@
 #include <Book/Command.hpp>
 #include <Book/Foreach.hpp>
 
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+
 #include <algorithm>
 #include <cassert>
 

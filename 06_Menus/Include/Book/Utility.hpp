@@ -10,6 +10,8 @@ namespace sf
 {
 	class Sprite;
 	class Text;
+	class Font;
+	class Texture;
 }
 
 // Since std::to_string doesn't work on MinGW we have to implement
@@ -23,6 +25,9 @@ std::string toString(sf::Keyboard::Key key);
 // Call setOrigin() with the center of the object
 void centerOrigin(sf::Sprite& sprite);
 void centerOrigin(sf::Text& text);
+
+const sf::Font&		defaultFont();
+const sf::Texture&	defaultTexture();
 
 #include <Book/Utility.inl>
 #endif // BOOK_UTILITY_HPP
