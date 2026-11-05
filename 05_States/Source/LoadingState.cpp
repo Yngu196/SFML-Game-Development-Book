@@ -8,23 +8,21 @@
 
 LoadingState::LoadingState(StateStack& stack, Context context)
 : State(stack, context)
+, mLoadingText(context.fonts->get(Fonts::Main), "Loading Resources")
 {
 	sf::RenderWindow& window = *getContext().window;
-	sf::Font& font = context.fonts->get(Fonts::Main);
 	sf::Vector2f viewSize = window.getView().getSize();
 
-	mLoadingText.setFont(font);
-	mLoadingText.setString("Loading Resources");
 	centerOrigin(mLoadingText);
-	mLoadingText.setPosition(viewSize.x / 2.f, viewSize.y / 2.f + 50.f);
+	mLoadingText.setPosition({viewSize.x / 2.f, viewSize.y / 2.f + 50.f});
 
 	mProgressBarBackground.setFillColor(sf::Color::White);
 	mProgressBarBackground.setSize(sf::Vector2f(viewSize.x - 20, 10));
-	mProgressBarBackground.setPosition(10, mLoadingText.getPosition().y + 40);
+	mProgressBarBackground.setPosition({10, mLoadingText.getPosition().y + 40});
 
 	mProgressBar.setFillColor(sf::Color(100,100,100));
 	mProgressBar.setSize(sf::Vector2f(200, 10));
-	mProgressBar.setPosition(10, mLoadingText.getPosition().y + 40);
+	mProgressBar.setPosition({10, mLoadingText.getPosition().y + 40});
 
 	setCompletion(0.f);
 

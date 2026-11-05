@@ -1,16 +1,18 @@
 #ifndef BOOK_PARALLELTASK_HPP
 #define BOOK_PARALLELTASK_HPP
 
-#include <SFML/System/Thread.hpp>
-#include <SFML/System/Mutex.hpp>
-#include <SFML/System/Lock.hpp>
 #include <SFML/System/Clock.hpp>
+
+#include <mutex>
+#include <thread>
 
 
 class ParallelTask
 {
 	public:
 							ParallelTask();
+							~ParallelTask();
+
 		void				execute();
 		bool				isFinished();
 		float				getCompletion();
@@ -19,10 +21,10 @@ class ParallelTask
 		void				runTask();
 
 	private:
-		sf::Thread			mThread;
+		std::thread			mThread;
 		bool				mFinished;
 		sf::Clock			mElapsedTime;
-		sf::Mutex			mMutex;
+		std::mutex			mMutex;
 };
 
 #endif // BOOK_PARALLELTASK_HPP

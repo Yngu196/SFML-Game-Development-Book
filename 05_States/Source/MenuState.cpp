@@ -9,25 +9,19 @@
 
 MenuState::MenuState(StateStack& stack, Context context)
 : State(stack, context)
+, mBackgroundSprite(context.textures->get(Textures::TitleScreen))
 , mOptions()
 , mOptionIndex(0)
 {
-	sf::Texture& texture = context.textures->get(Textures::TitleScreen);
 	sf::Font& font = context.fonts->get(Fonts::Main);
 
-	mBackgroundSprite.setTexture(texture);
-	
 	// A simple menu demonstration
-	sf::Text playOption;
-	playOption.setFont(font);
-	playOption.setString("Play");
+	sf::Text playOption(font, "Play");
 	centerOrigin(playOption);
 	playOption.setPosition(context.window->getView().getSize() / 2.f);
 	mOptions.push_back(playOption);
 
-	sf::Text exitOption;
-	exitOption.setFont(font);
-	exitOption.setString("Exit");
+	sf::Text exitOption(font, "Exit");
 	centerOrigin(exitOption);
 	exitOption.setPosition(playOption.getPosition() + sf::Vector2f(0.f, 30.f));
 	mOptions.push_back(exitOption);
@@ -54,10 +48,11 @@ bool MenuState::update(sf::Time)
 bool MenuState::handleEvent(const sf::Event& event)
 {
 	// The demonstration menu logic
-	if (event.type != sf::Event::KeyPressed)
+	const auto* keyPressed = event.getIf<sf::Event::KeyPressed>();
+	if (!keyPressed)
 		return false;
 
-	if (event.key.code == sf::Keyboard::Return)
+	if (keyPressed->code == sf::Keyboard::Key::Enter)
 	{
 		if (mOptionIndex == Play)
 		{
@@ -71,7 +66,7 @@ bool MenuState::handleEvent(const sf::Event& event)
 		}
 	}
 
-	else if (event.key.code == sf::Keyboard::Up)
+	else if (keyPressed->code == sf::Keyboard::Key::Up)
 	{
 		// Decrement and wrap-around
 		if (mOptionIndex > 0)
@@ -82,7 +77,7 @@ bool MenuState::handleEvent(const sf::Event& event)
 		updateOptionText();
 	}
 
-	else if (event.key.code == sf::Keyboard::Down)
+	else if (keyPressed->code == sf::Keyboard::Key::Down)
 	{
 		// Increment and wrap-around
 		if (mOptionIndex < mOptions.size() - 1)
@@ -103,8 +98,8 @@ void MenuState::updateOptionText()
 
 	// White all texts
 	FOREACH(sf::Text& text, mOptions)
-		text.setColor(sf::Color::White);
+		text.setFillColor(sf::Color::White);
 
 	// Red the selected text
-	mOptions[mOptionIndex].setColor(sf::Color::Red);
+	mOptions[mOptionIndex].setFillColor(sf::Color::Red);
 }
