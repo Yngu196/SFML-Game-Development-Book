@@ -13,7 +13,6 @@
 #include <Book/SoundPlayer.hpp>
 #include <Book/NetworkProtocol.hpp>
 
-#include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
@@ -29,7 +28,7 @@ namespace sf
 
 class NetworkNode;
 
-class World : private sf::NonCopyable
+class World
 {
 	public:
 											World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds, bool networked = false);

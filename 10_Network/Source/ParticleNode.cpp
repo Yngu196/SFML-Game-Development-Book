@@ -19,7 +19,7 @@ ParticleNode::ParticleNode(Particle::Type type, const TextureHolder& textures)
 , mParticles()
 , mTexture(textures.get(Textures::Particle))
 , mType(type)
-, mVertexArray(sf::Quads)
+, mVertexArray(sf::PrimitiveType::Triangles)
 , mNeedsVertexUpdate(true)
 {
 }
@@ -95,10 +95,14 @@ void ParticleNode::computeVertices() const
 		sf::Color color = particle.color;
 
 		float ratio = particle.lifetime.asSeconds() / Table[mType].lifetime.asSeconds();
-		color.a = static_cast<sf::Uint8>(255 * std::max(ratio, 0.f));
+		color.a = static_cast<std::uint8_t>(255 * std::max(ratio, 0.f));
 
+		// SFML 3 dropped the quads primitive: emit two triangles per particle
 		addVertex(pos.x - half.x, pos.y - half.y, 0.f,    0.f,    color);
 		addVertex(pos.x + half.x, pos.y - half.y, size.x, 0.f,    color);
+		addVertex(pos.x + half.x, pos.y + half.y, size.x, size.y, color);
+
+		addVertex(pos.x - half.x, pos.y - half.y, 0.f,    0.f,    color);
 		addVertex(pos.x + half.x, pos.y + half.y, size.x, size.y, color);
 		addVertex(pos.x - half.x, pos.y + half.y, 0.f,    size.y, color);
 	}

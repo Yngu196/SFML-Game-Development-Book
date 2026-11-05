@@ -11,6 +11,8 @@ namespace sf
 {
 	class Sprite;
 	class Text;
+	class Font;
+	class Texture;
 }
 
 class Animation;
@@ -39,6 +41,12 @@ int				randomInt(int exclusiveMax);
 float			length(sf::Vector2f vector);
 sf::Vector2f	unitVector(sf::Vector2f vector);
 
+
+// SFML 3 has no default constructors for sf::Text and sf::Sprite: both need
+// their resource at construction time. These empty resources are only used to
+// default-construct members that receive their real font/texture later on.
+const sf::Font&		defaultFont();
+const sf::Texture&	defaultTexture();
 
 #include <Book/Utility.inl>
 #endif // BOOK_UTILITY_HPP

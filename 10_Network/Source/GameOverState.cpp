@@ -10,7 +10,7 @@
 
 GameOverState::GameOverState(StateStack& stack, Context context, const std::string& text)
 : State(stack, context)
-, mGameOverText()
+, mGameOverText(context.fonts->get(Fonts::Main), "", 70)
 , mElapsedTime(sf::Time::Zero)
 {
 	sf::Font& font = context.fonts->get(Fonts::Main);
@@ -20,7 +20,7 @@ GameOverState::GameOverState(StateStack& stack, Context context, const std::stri
 	mGameOverText.setString(text);
 	mGameOverText.setCharacterSize(70);
 	centerOrigin(mGameOverText);
-	mGameOverText.setPosition(0.5f * windowSize.x, 0.4f * windowSize.y);
+	mGameOverText.setPosition({0.5f * windowSize.x, 0.4f * windowSize.y});
 }
 
 void GameOverState::draw()

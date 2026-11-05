@@ -13,11 +13,11 @@ void PostEffect::applyShader(const sf::Shader& shader, sf::RenderTarget& output)
 {
 	sf::Vector2f outputSize = static_cast<sf::Vector2f>(output.getSize());
 
-	sf::VertexArray vertices(sf::TrianglesStrip, 4);
-	vertices[0] = sf::Vertex(sf::Vector2f(0, 0),            sf::Vector2f(0, 1));
-	vertices[1] = sf::Vertex(sf::Vector2f(outputSize.x, 0), sf::Vector2f(1, 1));
-	vertices[2] = sf::Vertex(sf::Vector2f(0, outputSize.y), sf::Vector2f(0, 0));
-	vertices[3] = sf::Vertex(sf::Vector2f(outputSize),      sf::Vector2f(1, 0));
+	sf::VertexArray vertices(sf::PrimitiveType::TriangleStrip, 4);
+	vertices[0] = sf::Vertex{{0.f, 0.f},             sf::Color::White, {0.f, 1.f}};
+	vertices[1] = sf::Vertex{{outputSize.x, 0.f},    sf::Color::White, {1.f, 1.f}};
+	vertices[2] = sf::Vertex{{0.f, outputSize.y},    sf::Color::White, {0.f, 0.f}};
+	vertices[3] = sf::Vertex{{outputSize.x, outputSize.y}, sf::Color::White, {1.f, 0.f}};
 
 	sf::RenderStates states;
 	states.shader 	 = &shader;

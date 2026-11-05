@@ -64,7 +64,7 @@ struct AircraftMissileTrigger
 };
 
 
-Player::Player(sf::TcpSocket* socket, sf::Int32 identifier, const KeyBinding* binding)
+Player::Player(sf::TcpSocket* socket, std::int32_t identifier, const KeyBinding* binding)
 : mKeyBinding(binding)
 , mCurrentMissionStatus(MissionRunning)
 , mIdentifier(identifier)
@@ -81,18 +81,18 @@ Player::Player(sf::TcpSocket* socket, sf::Int32 identifier, const KeyBinding* bi
 void Player::handleEvent(const sf::Event& event, CommandQueue& commands)
 {
 	// Event
-	if (event.type == sf::Event::KeyPressed)
+	if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>())
 	{
 		Action action;
-		if (mKeyBinding && mKeyBinding->checkAction(event.key.code, action) && !isRealtimeAction(action))
+		if (mKeyBinding && mKeyBinding->checkAction(keyPressed->code, action) && !isRealtimeAction(action))
 		{
 			// Network connected -> send event over network
 			if (mSocket)
 			{
 				sf::Packet packet;
-				packet << static_cast<sf::Int32>(Client::PlayerEvent);
+				packet << static_cast<std::int32_t>(Client::PlayerEvent);
 				packet << mIdentifier;
-				packet << static_cast<sf::Int32>(action);		
+				packet << static_cast<std::int32_t>(action);		
 				mSocket->send(packet);
 			}
 
@@ -105,17 +105,21 @@ void Player::handleEvent(const sf::Event& event, CommandQueue& commands)
 	}
 
 	// Realtime change (network connected)
-	if ((event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) && mSocket)
+	const auto* keyDown = event.getIf<sf::Event::KeyPressed>();
+	const auto* keyUp   = event.getIf<sf::Event::KeyReleased>();
+	if ((keyDown || keyUp) && mSocket)
 	{
+		const sf::Keyboard::Key code = keyDown ? keyDown->code : keyUp->code;
+
 		Action action;
-		if (mKeyBinding && mKeyBinding->checkAction(event.key.code, action) && isRealtimeAction(action))
+		if (mKeyBinding && mKeyBinding->checkAction(code, action) && isRealtimeAction(action))
 		{
 			// Send realtime change over network
 			sf::Packet packet;
-			packet << static_cast<sf::Int32>(Client::PlayerRealtimeChange);
+			packet << static_cast<std::int32_t>(Client::PlayerRealtimeChange);
 			packet << mIdentifier;
-			packet << static_cast<sf::Int32>(action);
-			packet << (event.type == sf::Event::KeyPressed);
+			packet << static_cast<std::int32_t>(action);
+			packet << (keyDown != nullptr);
 			mSocket->send(packet);
 		}
 	}
@@ -132,9 +136,9 @@ void Player::disableAllRealtimeActions()
 	FOREACH(auto& action, mActionProxies)
 	{
 		sf::Packet packet;
-		packet << static_cast<sf::Int32>(Client::PlayerRealtimeChange);
+		packet << static_cast<std::int32_t>(Client::PlayerRealtimeChange);
 		packet << mIdentifier;
-		packet << static_cast<sf::Int32>(action.first);
+		packet << static_cast<std::int32_t>(action.first);
 		packet << false;
 		mSocket->send(packet);
 	}

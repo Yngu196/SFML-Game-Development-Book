@@ -7,9 +7,9 @@
 
 SettingsState::SettingsState(StateStack& stack, Context context)
 : State(stack, context)
+, mBackgroundSprite(context.textures->get(Textures::TitleScreen))
 , mGUIContainer()
 {
-	mBackgroundSprite.setTexture(context.textures->get(Textures::TitleScreen));
 	
 	// Build key binding buttons and labels
 	for (std::size_t x = 0; x < 2; ++x)
@@ -25,7 +25,7 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 	updateLabels();
 
 	auto backButton = std::make_shared<GUI::Button>(context);
-	backButton->setPosition(80.f, 620.f);
+	backButton->setPosition({80.f, 620.f});
 	backButton->setText("Back");
 	backButton->setCallback(std::bind(&SettingsState::requestStackPop, this));
 
@@ -55,15 +55,15 @@ bool SettingsState::handleEvent(const sf::Event& event)
 		if (mBindingButtons[i]->isActive())
 		{
 			isKeyBinding = true;
-			if (event.type == sf::Event::KeyReleased)
+			if (const auto* keyReleased = event.getIf<sf::Event::KeyReleased>())
 			{
 				// Player 1
 				if (i < PlayerAction::Count)
-					getContext().keys1->assignKey(static_cast<PlayerAction::Type>(i), event.key.code);
+					getContext().keys1->assignKey(static_cast<PlayerAction::Type>(i), keyReleased->code);
 				
 				// Player 2
 				else
-					getContext().keys2->assignKey(static_cast<PlayerAction::Type>(i - PlayerAction::Count), event.key.code);
+					getContext().keys2->assignKey(static_cast<PlayerAction::Type>(i - PlayerAction::Count), keyReleased->code);
 
 				mBindingButtons[i]->deactivate();
 			}
@@ -102,12 +102,12 @@ void SettingsState::addButtonLabel(std::size_t index, std::size_t x, std::size_t
 	index += PlayerAction::Count * x;
 
 	mBindingButtons[index] = std::make_shared<GUI::Button>(context);
-	mBindingButtons[index]->setPosition(400.f*x + 80.f, 50.f*y + 300.f);
+	mBindingButtons[index]->setPosition({400.f*x + 80.f, 50.f*y + 300.f});
 	mBindingButtons[index]->setText(text);
 	mBindingButtons[index]->setToggle(true);
 
 	mBindingLabels[index] = std::make_shared<GUI::Label>("", *context.fonts);
-	mBindingLabels[index]->setPosition(400.f*x + 300.f, 50.f*y + 315.f);
+	mBindingLabels[index]->setPosition({400.f*x + 300.f, 50.f*y + 315.f});
 
 	mGUIContainer.pack(mBindingButtons[index]);
 	mGUIContainer.pack(mBindingLabels[index]);

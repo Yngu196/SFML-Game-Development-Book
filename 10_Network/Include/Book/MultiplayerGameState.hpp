@@ -7,6 +7,8 @@
 #include <Book/GameServer.hpp>
 #include <Book/NetworkProtocol.hpp>
 
+#include <cstdint>
+
 #include <SFML/System/Clock.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Network/TcpSocket.hpp>
@@ -29,7 +31,7 @@ class MultiplayerGameState : public State
 
 	private:
 		void						updateBroadcastMessage(sf::Time elapsedTime);
-		void						handlePacket(sf::Int32 packetType, sf::Packet& packet);
+		void						handlePacket(std::int32_t packetType, sf::Packet& packet);
 
 
 	private:
@@ -42,7 +44,7 @@ class MultiplayerGameState : public State
 		TextureHolder&				mTextureHolder;
 
 		std::map<int, PlayerPtr>	mPlayers;
-		std::vector<sf::Int32>		mLocalPlayerIdentifiers;
+		std::vector<std::int32_t>	mLocalPlayerIdentifiers;
 		sf::TcpSocket				mSocket;
 		bool						mConnected;
 		std::unique_ptr<GameServer> mGameServer;

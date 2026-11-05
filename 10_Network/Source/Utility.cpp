@@ -1,8 +1,10 @@
 #include <Book/Utility.hpp>
 #include <Book/Animation.hpp>
 
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include <random>
 #include <cmath>
@@ -23,7 +25,7 @@ namespace
 
 std::string toString(sf::Keyboard::Key key)
 {
-	#define BOOK_KEYTOSTRING_CASE(KEY) case sf::Keyboard::KEY: return #KEY;
+	#define BOOK_KEYTOSTRING_CASE(KEY) case sf::Keyboard::Key::KEY: return #KEY;
 
 	switch (key)
 	{
@@ -76,18 +78,18 @@ std::string toString(sf::Keyboard::Key key)
 		BOOK_KEYTOSTRING_CASE(Menu)
 		BOOK_KEYTOSTRING_CASE(LBracket)
 		BOOK_KEYTOSTRING_CASE(RBracket)
-		BOOK_KEYTOSTRING_CASE(SemiColon)
+		BOOK_KEYTOSTRING_CASE(Semicolon)
 		BOOK_KEYTOSTRING_CASE(Comma)
 		BOOK_KEYTOSTRING_CASE(Period)
-		BOOK_KEYTOSTRING_CASE(Quote)
+		BOOK_KEYTOSTRING_CASE(Apostrophe)
 		BOOK_KEYTOSTRING_CASE(Slash)
-		BOOK_KEYTOSTRING_CASE(BackSlash)
-		BOOK_KEYTOSTRING_CASE(Tilde)
+		BOOK_KEYTOSTRING_CASE(Backslash)
+		BOOK_KEYTOSTRING_CASE(Grave)
 		BOOK_KEYTOSTRING_CASE(Equal)
-		BOOK_KEYTOSTRING_CASE(Dash)
+		BOOK_KEYTOSTRING_CASE(Hyphen)
 		BOOK_KEYTOSTRING_CASE(Space)
-		BOOK_KEYTOSTRING_CASE(Return)
-		BOOK_KEYTOSTRING_CASE(BackSpace)
+		BOOK_KEYTOSTRING_CASE(Enter)
+		BOOK_KEYTOSTRING_CASE(Backspace)
 		BOOK_KEYTOSTRING_CASE(Tab)
 		BOOK_KEYTOSTRING_CASE(PageUp)
 		BOOK_KEYTOSTRING_CASE(PageDown)
@@ -137,19 +139,19 @@ std::string toString(sf::Keyboard::Key key)
 void centerOrigin(sf::Sprite& sprite)
 {
 	sf::FloatRect bounds = sprite.getLocalBounds();
-	sprite.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
+	sprite.setOrigin({std::floor(bounds.position.x + bounds.size.x / 2.f), std::floor(bounds.position.y + bounds.size.y / 2.f)});
 }
 
 void centerOrigin(sf::Text& text)
 {
 	sf::FloatRect bounds = text.getLocalBounds();
-	text.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
+	text.setOrigin({std::floor(bounds.position.x + bounds.size.x / 2.f), std::floor(bounds.position.y + bounds.size.y / 2.f)});
 }
 
 void centerOrigin(Animation& animation)
 {
 	sf::FloatRect bounds = animation.getLocalBounds();
-	animation.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
+	animation.setOrigin({std::floor(bounds.position.x + bounds.size.x / 2.f), std::floor(bounds.position.y + bounds.size.y / 2.f)});
 }
 
 float toDegree(float radian)
@@ -177,4 +179,16 @@ sf::Vector2f unitVector(sf::Vector2f vector)
 {
 	assert(vector != sf::Vector2f(0.f, 0.f));
 	return vector / length(vector);
+}
+
+const sf::Font& defaultFont()
+{
+	static const sf::Font font;
+	return font;
+}
+
+const sf::Texture& defaultTexture()
+{
+	static const sf::Texture texture;
+	return texture;
 }
