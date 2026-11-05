@@ -10,7 +10,6 @@
 #include <Book/Command.hpp>
 #include <Book/BloomEffect.hpp>
 
-#include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
@@ -24,7 +23,7 @@ namespace sf
 	class RenderTarget;
 }
 
-class World : private sf::NonCopyable
+class World
 {
 	public:
 		explicit							World(sf::RenderTarget& outputTarget, FontHolder& fonts);

@@ -1,10 +1,29 @@
 
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Graphics/Font.hpp>
+
+
+{
+	return resource.openFromFile(filename);
+}
+
+inline bool loadResourceFromFile(sf::Music& resource, const std::string& filename)
+{
+	return resource.openFromFile(filename);
+}
+
+template <typename Resource>
+inline bool loadResourceFromFile(Resource& resource, const std::string& filename)
+{
+	return resource.loadFromFile(filename);
+}
+
 template <typename Resource, typename Identifier>
 void ResourceHolder<Resource, Identifier>::load(Identifier id, const std::string& filename)
 {
 	// Create and load resource
 	std::unique_ptr<Resource> resource(new Resource());
-	if (!resource->loadFromFile(filename))
+	if (!loadResourceFromFile(*resource, filename))
 		throw std::runtime_error("ResourceHolder::load - Failed to load " + filename);
 
 	// If loading successful, insert resource to map

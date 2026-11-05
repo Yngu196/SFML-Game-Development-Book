@@ -12,13 +12,13 @@ namespace GUI
 Button::Button(const FontHolder& fonts, const TextureHolder& textures)
 : mCallback()
 , mSprite(textures.get(Textures::Buttons))
-, mText("", fonts.get(Fonts::Main), 16)
+, mText(fonts.get(Fonts::Main), "", 16)
 , mIsToggle(false)
 {
 	changeTexture(Normal);
 
 	sf::FloatRect bounds = mSprite.getLocalBounds();
-	mText.setPosition(bounds.width / 2.f, bounds.height / 2.f);
+	mText.setPosition({bounds.size.x / 2.f, bounds.size.y / 2.f});
 }
 
 void Button::setCallback(Callback callback)
@@ -99,7 +99,7 @@ void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 void Button::changeTexture(Type buttonType)
 {
-	sf::IntRect textureRect(0, 50*buttonType, 200, 50);
+	sf::IntRect textureRect({0, 50 * buttonType}, {200, 50});
 	mSprite.setTextureRect(textureRect);
 }
 
