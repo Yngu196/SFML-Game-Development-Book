@@ -11,6 +11,8 @@ namespace sf
 {
 	class Sprite;
 	class Text;
+	class Font;
+	class Texture;
 }
 
 class Animation;
@@ -39,6 +41,9 @@ int				randomInt(int exclusiveMax);
 float			length(sf::Vector2f vector);
 sf::Vector2f	unitVector(sf::Vector2f vector);
 
+
+const sf::Font&		defaultFont();
+const sf::Texture&	defaultTexture();
 
 #include <Book/Utility.inl>
 #endif // BOOK_UTILITY_HPP

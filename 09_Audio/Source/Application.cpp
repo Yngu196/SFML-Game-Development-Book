@@ -13,14 +13,14 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/60.f);
 
 Application::Application()
-: mWindow(sf::VideoMode(1024, 768), "Audio", sf::Style::Close)
+: mWindow(sf::VideoMode({1024, 768}), "Audio", sf::Style::Close)
 , mTextures()
 , mFonts()
 , mPlayer()
 , mMusic()
 , mSounds()
 , mStateStack(State::Context(mWindow, mTextures, mFonts, mPlayer, mMusic, mSounds))
-, mStatisticsText()
+, mStatisticsText(defaultFont(), "", 30)
 , mStatisticsUpdateTime()
 , mStatisticsNumFrames(0)
 {
@@ -33,7 +33,7 @@ Application::Application()
 	mTextures.load(Textures::Buttons,		"Media/Textures/Buttons.png");
 
 	mStatisticsText.setFont(mFonts.get(Fonts::Main));
-	mStatisticsText.setPosition(5.f, 5.f);
+	mStatisticsText.setPosition({5.f, 5.f});
 	mStatisticsText.setCharacterSize(10u);
 
 	registerStates();
@@ -70,12 +70,11 @@ void Application::run()
 
 void Application::processInput()
 {
-	sf::Event event;
-	while (mWindow.pollEvent(event))
+	while (const std::optional event = mWindow.pollEvent())
 	{
-		mStateStack.handleEvent(event);
+		mStateStack.handleEvent(*event);
 
-		if (event.type == sf::Event::Closed)
+		if (event->is<sf::Event::Closed>())
 			mWindow.close();
 	}
 }
