@@ -5,19 +5,19 @@
 const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
 
 Game::Game()
-: mWindow(sf::VideoMode(640, 480), "Input", sf::Style::Close)
+	: mWindow(sf::VideoMode({ 640, 480 }), "Input", sf::Style::Close)
 , mWorld(mWindow)
 , mPlayer()
 , mFont()
-, mStatisticsText()
+, mStatisticsText(mFont, "", 30)
 , mStatisticsUpdateTime()
 , mStatisticsNumFrames(0)
 {
 	mWindow.setKeyRepeatEnabled(false);
 
-	mFont.loadFromFile("Media/Sansation.ttf");
+	mFont.openFromFile("Media/Sansation.ttf");
 	mStatisticsText.setFont(mFont);
-	mStatisticsText.setPosition(5.f, 5.f);
+	mStatisticsText.setPosition(sf::Vector2f(5.f, 5.f));
 	mStatisticsText.setCharacterSize(10);
 }
 
@@ -46,12 +46,11 @@ void Game::processInput()
 {
 	CommandQueue& commands = mWorld.getCommandQueue();
 
-	sf::Event event;
-	while (mWindow.pollEvent(event))
+	while (const std::optional event = mWindow.pollEvent())
 	{
-		mPlayer.handleEvent(event, commands);
+		mPlayer.handleEvent(*event, commands);
 
-		if (event.type == sf::Event::Closed)
+		if (event->is<sf::Event::Closed>())
 			mWindow.close();
 	}
 
